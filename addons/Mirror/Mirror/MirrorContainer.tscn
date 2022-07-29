@@ -1,33 +1,40 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=3 uid="uid://dfo38mtrmrref"]
 
-[ext_resource path="res://addons/Mirror/Mirror/MirrorMaterial.tres" type="Material" id=1]
+[ext_resource type="Shader" path="res://addons/Mirror/Mirror/Mirror.gdshader" id="1_gh6fi"]
 
-[sub_resource type="QuadMesh" id=11]
-size = Vector2( 2, 2 )
+[sub_resource type="ViewportTexture" id="ViewportTexture_ukkuk"]
+viewport_path = NodePath("Viewport")
 
-[node name="MirrorContainer" type="Spatial"]
-__meta__ = {
-"_edit_group_": true,
-"_edit_lock_": true
-}
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c4i66"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("1_gh6fi")
+shader_param/distort_strength = null
+shader_param/mirror_tex = SubResource("ViewportTexture_ukkuk")
+shader_param/tint = null
 
-[node name="Viewport" type="Viewport" parent="."]
-size = Vector2( 100, 100 )
-keep_3d_linear = true
+[sub_resource type="QuadMesh" id="11"]
+size = Vector2(2, 2)
 
-[node name="Camera" type="Camera" parent="Viewport"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.406672, 1.21628, 8.51171 )
+[node name="MirrorContainer" type="Node3D"]
+
+[node name="Viewport" type="SubViewport" parent="."]
+size = Vector2i(100, 100)
+render_target_update_mode = 4
+
+[node name="Camera" type="Camera3D" parent="Viewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.406672, 1.21628, 8.51171)
 keep_aspect = 0
 cull_mask = 1048571
 projection = 2
 size = 3.0
-frustum_offset = Vector2( -0.406672, -1.21628 )
+frustum_offset = Vector2(-0.406672, -1.21628)
 near = 8.51171
 far = 10000.0
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, 0, 0)
 layers = 4
-mesh = SubResource( 11 )
+material_override = SubResource("ShaderMaterial_c4i66")
+mesh = SubResource("11")
 skeleton = NodePath("../..")
-material/0 = ExtResource( 1 )

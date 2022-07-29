@@ -1,24 +1,24 @@
-tool
-extends Spatial
+@tool
+extends Node3D
 
 const whitegreen : Color = Color(0.9, 0.97, 0.94)
 
-export var size : Vector2 = Vector2(2, 2)
-export var ResolutionPerUnit = 100
-export(NodePath) var MainCamPath = ""
-export(Array, int) var cullMask = []
-export(Color, RGB) var MirrorColor = whitegreen
-export(float, 0, 30, 0.01) var MirrorDistortion = 0
-export(Texture) var DistortionTexture
+@export var size : Vector2 = Vector2(2, 2)
+@export var ResolutionPerUnit = 100
+@export_node_path var MainCamPath : NodePath = ""
+@export var cullMask : Array = []
+@export var MirrorColor : Color= whitegreen
+@export_range(0, 30, 0.01) var MirrorDistortion = 0
+@export var DistortionTexture : Texture
 
-var MainCam : Camera = null
-var cam : Camera
-var mirror : MeshInstance
+var MainCam : Camera3D = null
+var cam : Camera3D
+var mirror : MeshInstance3D
 var viewport : Viewport
 
 
 func _enter_tree():
-	var node = preload("MirrorContainer.tscn").instance()
+	var node = preload("MirrorContainer.tscn").instantiate()
 	add_child(node)
 
 
@@ -34,7 +34,7 @@ func _process(delta):
 	if MainCam == null:
 		# No camera specified for the mirror to operate on
 		return
-	
+
 	# Cull camera layers
 	cam.cull_mask = 0xFF
 	for i in cullMask:
@@ -44,20 +44,20 @@ func _process(delta):
 	mirror.mesh.size = size
 	# set viewport to specified resolution
 	viewport.size = size * ResolutionPerUnit
-	
+
 	# Set tint color
 	mirror.get_active_material(0).set_shader_param("tint", MirrorColor)
-	
+
 	# Set distortion texture
 	mirror.get_active_material(0).set_shader_param("distort_tex", DistortionTexture)
 	# Set distortion strength
 	mirror.get_active_material(0).set_shader_param("distort_strength", MirrorDistortion)
-	
+
 	# Transform the mirror camera to the opposite side of the mirror plane
-	var MirrorNormal = mirror.global_transform.basis.z	
+	var MirrorNormal = mirror.global_transform.basis.z
 	var MirrorTransform =  Mirror_transform(MirrorNormal, mirror.global_transform.origin)
 	cam.global_transform = MirrorTransform * MainCam.global_transform
-	
+
 	# Look perpendicular into the mirror plane for frostum camera
 	cam.global_transform = cam.global_transform.looking_at(
 			cam.global_transform.origin/2 + MainCam.global_transform.origin/2, \
@@ -76,13 +76,12 @@ func _process(delta):
 # n is the normal of the mirror plane
 # d is the offset from the plane of the mirrored object
 # Gets the transformation that mirrors through the plane with normal n and offset d
-func Mirror_transform(n : Vector3, d : Vector3) -> Transform:
+func Mirror_transform(n : Vector3, d : Vector3) -> Transform3D:
 	var basisX : Vector3 = Vector3(1.0, 0, 0) - 2 * Vector3(n.x * n.x, n.x * n.y, n.x * n.z)
 	var basisY : Vector3 = Vector3(0, 1.0, 0) - 2 * Vector3(n.y * n.x, n.y * n.y, n.y * n.z)
 	var basisZ : Vector3 = Vector3(0, 0, 1.0) - 2 * Vector3(n.z * n.x, n.z * n.y, n.z * n.z)
-	
+
 	var offset = Vector3.ZERO
 	offset = 2 * n.dot(d)*n
-	
-	return Transform(Basis(basisX, basisY, basisZ), offset)	
-	pass
+
+	return Transform3D(Basis(basisX, basisY, basisZ), offset)

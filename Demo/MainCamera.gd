@@ -1,27 +1,31 @@
-extends Spatial
+extends Node3D
 
 class_name TpsCamera
 
 
 # Nodes
-onready var camera_pivot : Spatial = self
-onready var camera_rod : Spatial = get_node("CameraRod")
-onready var camera : Camera = get_node("CameraRod/MainCamera")
+@onready var camera_pivot : Node3D = self
+@onready var camera_rod : Node3D = get_node("CameraRod")
+@onready var camera : Camera3D = get_node("CameraRod/MainCamera")
 
 # Movement
-export var mouse_sensitivity : float = 0.15
-export var camera_min_vertical_rotation : float = -85.0
-export var camera_max_vertical_rotation : float = 85.0
+@export var mouse_sensitivity : float = 0.15
+@export var camera_min_vertical_rotation : float = -85.0
+@export var camera_max_vertical_rotation : float = 85.0
 
 # zooming
-export var camera_zoom : float = 3.0 setget set_camera_zoom
+@export var camera_zoom : float = 3.0:
+	get: return camera_zoom
+	set(value): set_camera_zoom(value)
 func set_camera_zoom(value): camera_zoom = clamp(value, camera_min_zoom_distance, camera_max_zoom_distance)
-export var camera_min_zoom_distance : float = 3.0
-export var camera_max_zoom_distance : float = 15.0
-export var camera_zoom_step : float = 0.5
+@export var camera_min_zoom_distance : float = 3.0
+@export var camera_max_zoom_distance : float = 15.0
+@export var camera_zoom_step : float = 0.5
 
 # Cursor
-onready var is_cursor_visible setget set_is_cursor_visible, get_is_cursor_visible
+@onready var is_cursor_visible:
+	get: return is_cursor_visible
+	set(value): set_is_cursor_visible(value)
 func set_is_cursor_visible(value): Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE if value else Input.MOUSE_MODE_CAPTURED)
 func get_is_cursor_visible(): return Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE
 
@@ -36,7 +40,7 @@ func _ready() -> void:
 	self.is_cursor_visible = false
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	process_basic_input()
 	
 	if Input.is_action_pressed("ui_up"):
@@ -65,13 +69,11 @@ func rotate_camera(camera_direction : Vector2) -> void:
 	# Vertical rotation
 	camera_rod.rotate_x(-camera_direction.y)
 	
-	# Limit vertical rotation
-	camera_rod.rotation_degrees.x = clamp(
-		camera_rod.rotation_degrees.x,
-		camera_min_vertical_rotation, camera_max_vertical_rotation
-	)
-	
-	
+#	# Limit vertical rotation
+#	camera_rod.rotation_degrees.x = clamp(
+#		camera_rod.rotation_degrees.x,
+#		camera_min_vertical_rotation, camera_max_vertical_rotation
+#	)
 
 func toggle_cursor_visibility() -> void:
 	self.is_cursor_visible = !self.is_cursor_visible
@@ -100,9 +102,9 @@ func process_mouse_input(event : InputEvent) -> void:
 	# Scrolling
 	elif event is InputEventMouseButton:
 		if event.is_pressed() and not self.is_cursor_visible:
-			if event.button_index == BUTTON_WHEEL_UP:
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				self.camera_zoom -= camera_zoom_step
-			if event.button_index == BUTTON_WHEEL_DOWN:
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				self.camera_zoom += camera_zoom_step
 	
 

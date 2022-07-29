@@ -1,13 +1,13 @@
 shader_type spatial;
 render_mode cull_disabled, unshaded;
 
-uniform vec4 tint : hint_color = vec4(vec3(0.98),1.0);
+uniform vec4 tint : source_color = vec4(vec3(0.98),1.0);
 uniform sampler2D mirror_tex;
-uniform sampler2D distort_tex : hint_albedo;
+uniform sampler2D distort_tex : source_color;
 uniform float distort_strength : hint_range(0, 30);
 
 void vertex() {
-	UV = 1.0 - UV;
+	UV.x = -UV.x;
 }
 
 //vec3 lin_to_srgb(vec3 col) {
@@ -23,7 +23,7 @@ void fragment() {
 	
 	// Backface texcoord flip correction
 	if (!FRONT_FACING) {
-		m_UV.x = 1.0 - m_UV.x;
+		m_UV.x = - m_UV.x;
 	}
 	
 	float distort_ofs = texture(distort_tex, m_UV).r;
